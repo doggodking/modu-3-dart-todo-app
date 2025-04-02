@@ -28,7 +28,7 @@ class Todo implements Comparable<Todo> {
       'id': id,
       'completed': completed,
       'title': title,
-      'createdAt': createdAt,
+      'createdAt': createdAt.toIso8601String(),
       'userId': userId,
     };
   }
@@ -66,5 +66,9 @@ class Todo implements Comparable<Todo> {
   @override
   int compareTo(Todo other) {
     return createdAt.compareTo(other.createdAt);
+  }
+
+  Todo toggleCompleted() {
+    return copyWith(completed: !completed);
   }
 }
