@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:todo_app/data_source/todo_data_source.dart';
 
-class TodoDataSourceImpl implements TodoDataSource {
+class MockTodoDataSourceImpl implements TodoDataSource {
   final String _path;
 
-  String backUpPath = 'data/backup.dat';
+  String backUpPath = 'data/backup2.dat';
 
-  TodoDataSourceImpl({String path = 'data/todos.json'}) : _path = path;
+  MockTodoDataSourceImpl({String path = 'data/todos.json'}) : _path = path;
 
   @override
   Future<List<Map<String, dynamic>>> readTodos() async {
@@ -17,6 +17,10 @@ class TodoDataSourceImpl implements TodoDataSource {
     List fileDataList = [];
 
     if (!await file.exists()) {
+      //File newFile = await File(_path).create().then((File file) async {
+      // return file.writeAsString(await File(backUpPath).readAsString());
+      //});
+
       File newFile = await File(
         _path,
       ).writeAsString(await File(backUpPath).readAsString());

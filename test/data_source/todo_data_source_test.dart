@@ -5,6 +5,9 @@ import 'package:test/test.dart';
 import 'package:todo_app/data_source/todo_data_source.dart';
 import 'package:todo_app/data_source/todo_data_source_impl.dart';
 
+import '../mock/mock_todo_data_source.dart';
+import '../mock/mock_todo_data_source_impl.dart';
+
 void main() async {
   const String filePath = 'data/todos.json';
 
@@ -21,6 +24,8 @@ void main() async {
     List<Map<String, dynamic>> getDataSource = await todoDataSource.readTodos();
 
     expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
+
+    await File(filePath).delete();
   });
 
   test("2. readTodos() – 정상 파일에서 데이터 읽기", () async {
@@ -31,32 +36,8 @@ void main() async {
 
   test("3. writeTodos() – 데이터 파일에 쓰기", () async {
     List<Map<String, dynamic>> readData =
-        await TodoDataSourceImpl(path: filePath).readTodos();
-    List<Map<String, dynamic>> mockData = [
-      {
-        "userId": 1,
-        "id": 1,
-        "title": "생존코딩 유튜브 구독하기",
-        "completed": false,
-        "createdAt": "2025-03-29T10:15:00Z",
-      },
-      {
-        "userId": 1,
-        "id": 2,
-        "title": "PR 제출하기",
-        "completed": false,
-        "createdAt": "2025-03-30T08:30:00Z",
-      },
-      {
-        "userId": 1,
-        "id": 3,
-        "title": "다른 사람 코드 리뷰하기",
-        "completed": false,
-        "createdAt": "2025-03-31T14:00:00Z",
-      },
-    ];
-
-    TodoDataSourceImpl(path: filePath).backUpPath = 'data/backup2.dat';
+        await MockTodoDataSourceImpl(path: filePath).readTodos();
+    List<Map<String, dynamic>> mockData = MockTodoDataSource().data;
 
     File testFile = File('data/todos2.json');
 
@@ -71,6 +52,7 @@ void main() async {
       await File('data/backup2.dat').delete();
     }
 
+    await File(filePath).delete();
     await testFile.delete();
   });
 }
