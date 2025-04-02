@@ -13,6 +13,10 @@ class TodoRepositoryImpl implements TodoRepository {
   Future<int> _getMaxId() async {
     final List<Todo> todos = await getTodos();
 
+    if (todos.isEmpty) {
+      return 0;
+    }
+
     return todos.map((e) => e.id).reduce(max);
   }
 
