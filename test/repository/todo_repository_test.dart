@@ -3,7 +3,7 @@ import 'package:todo_app/model/todo.dart';
 import 'package:todo_app/repository/todo_repository.dart';
 import 'package:todo_app/repository/todo_repository_impl.dart';
 
-import 'mock/mock_todo_data_source.dart';
+import '../mock/mock_todo_data_source.dart';
 
 void main() {
   late TodoRepository todoRepository;
