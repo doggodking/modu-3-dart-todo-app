@@ -25,15 +25,19 @@ class TodoRepositoryImpl implements TodoRepository {
       completed: false,
       createdAt: DateTime.now(),
     );
+    final List<Todo> todos = await getTodos();
 
-    _todoDataSource.writeTodos([todo.toJson()]);
+    await _todoDataSource.writeTodos([
+      ...todos.map((e) => e.toJson()),
+      todo.toJson(),
+    ]);
   }
 
   @override
   Future<void> deleteTodo(int id) async {
     final List<Todo> todos = await getTodos();
 
-    _todoDataSource.writeTodos(
+    await _todoDataSource.writeTodos(
       (todos..removeWhere((element) => element.id == id))
           .map((e) => e.toJson())
           .toList(),
@@ -45,35 +49,26 @@ class TodoRepositoryImpl implements TodoRepository {
     final List<Map<String, dynamic>> todoJsons =
         await _todoDataSource.readTodos();
 
-    return todoJsons.cast<Todo>();
+    return todoJsons.map((e) => Todo.fromJson(e)).toList();
   }
 
   @override
   Future<void> toggleTodo(int id) async {
     final List<Todo> todos = await getTodos();
 
-    Todo? todo = todos.where((element) => element.id == id).firstOrNull;
+    final List<Todo> updated =
+        todos.map((t) => t.id == id ? t.toggleCompleted() : t).toList();
 
-    if (todo != null) {
-      final int index = todos.indexOf(todo);
-      todos[index] = todo.copyWith(completed: !todo.completed);
-    }
-
-    _todoDataSource.writeTodos(todos.map((e) => e.toJson()).toList());
+    await _todoDataSource.writeTodos(updated.map((e) => e.toJson()).toList());
   }
 
   @override
   Future<void> updateTodo(int id, String newTitle) async {
     final List<Todo> todos = await getTodos();
+    final List<Todo> updated =
+        todos.map((t) => t.id == id ? t.copyWith(title: newTitle) : t).toList();
 
-    Todo? todo = todos.where((element) => element.id == id).firstOrNull;
-
-    if (todo != null) {
-      final int index = todos.indexOf(todo);
-      todos[index] = todo.copyWith(title: newTitle);
-    }
-
-    _todoDataSource.writeTodos(todos.map((e) => e.toJson()).toList());
+    await _todoDataSource.writeTodos(updated.map((e) => e.toJson()).toList());
   }
 
   @override
