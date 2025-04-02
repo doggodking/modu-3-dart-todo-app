@@ -61,6 +61,7 @@
 
 ![img](https://raw.githubusercontent.com/doggodking/modu-3-dart-todo-app/refs/heads/master/docs/capture_menu.png)
 ![img](https://raw.githubusercontent.com/doggodking/modu-3-dart-todo-app/refs/heads/master/docs/capture_list.png)
+![img](https://raw.githubusercontent.com/doggodking/modu-3-dart-todo-app/refs/heads/master/docs/capture_filtered.png)
 
 - `todos.json`은 앱 시작 시 자동 생성되며, 없을 경우 `backup.dat`를 참고합니다.
 - 로그는 `logs/log.txt`에 자동 기록됩니다.
