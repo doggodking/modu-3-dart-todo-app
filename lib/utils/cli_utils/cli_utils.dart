@@ -1,15 +1,14 @@
 import 'dart:io';
-import 'package:todo_app/repository/todo_repository_impl.dart';
 import 'package:todo_app/utils/cli_utils/cli_text_constants.dart';
 import 'package:todo_app/utils/logs/app_log.dart';
-import '../../data_source/todo_data_source_impl.dart';
 import '../../model/todo.dart';
 import '../../repository/todo_repository.dart';
 
 class CliUtils {
-  final TodoRepository repository = TodoRepositoryImpl(
-    datasource: TodoDataSourceImpl(path: 'data/todos.json'),
-  );
+  final TodoRepository repository;
+
+  CliUtils({required this.repository});
+
   final AppLog logger = AppLog();
 
   // 공통 체크 함수
@@ -154,34 +153,4 @@ class CliUtils {
       }
     }
   }
-
-
-/*
-  // 디버그용, 각 메뉴를 단위별로 호출
-  Future<void> testMenuOption(String choice) async {
-    switch (choice) {
-      case '1':
-        await showTodos();  // 할 일 목록 보기
-        break;
-      case '2':
-        await addTodo();    // 할 일 추가
-        break;
-      case '3':
-        await updateTodo(); // 할 일 수정
-        break;
-      case '4':
-        await toggleTodo(); // 완료 상태 토글
-        break;
-      case '5':
-        await deleteTodo(); // 할 일 삭제
-        break;
-      case '0':
-        print(CliTextConstants.programExit); // 종료
-        return;
-      default:
-        print(CliTextConstants.invalidInput); // 잘못된 입력
-    }
-  }
-
- */
 }
