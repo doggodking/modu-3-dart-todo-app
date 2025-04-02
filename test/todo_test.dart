@@ -49,6 +49,15 @@ void main() {
     expect(origin, isNot(equals(copied)));
   });
 
+  test('toggleCompleted() 사용 시 인스턴스의 completed만 토글된 인스턴스가 새롭게 반환되어야한다.', () {
+    Todo todo = todos[0];
+
+    expect(todo.completed, false);
+
+    Todo copied = todo.toggleCompleted();
+    expect(copied.completed, true);
+  });
+
   test('List.sort() 사용 시 createdAt 기준 오름차순으로 정렬되어야한다.', () {
     List<Todo> expected = [...todos];
     List<Todo> sorted = todos..sort();
