@@ -47,7 +47,7 @@ class TodoDataSourceImpl implements TodoDataSource {
 
     List<Map<String, dynamic>> getFileReadTodo = await readTodos();
 
-    String encodeJson = jsonEncode(getFileReadTodo..addAll(todos));
+    String encodeJson = jsonEncode(todos);
 
     await file.writeAsString(encodeJson);
     await newBackFile.writeAsString(encodeJson);
