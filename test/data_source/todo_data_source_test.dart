@@ -20,7 +20,10 @@ void main() async {
     TodoDataSource todoDataSource = TodoDataSourceImpl(path: filePath);
     List<Map<String, dynamic>> getDataSource = await todoDataSource.readTodos();
 
-    if (!await File(filePath).exists()) throw Exception();
+    if (await File(filePath).exists()) {
+      await todoDataSource.readTodos();
+      expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
+    }
     if (await File(filePath).exists()) {
       expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
     }

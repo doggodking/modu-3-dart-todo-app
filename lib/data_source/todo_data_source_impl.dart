@@ -4,19 +4,19 @@ import 'dart:io';
 import 'package:todo_app/data_source/todo_data_source.dart';
 
 class TodoDataSourceImpl implements TodoDataSource {
-  final String path;
+  final String _path;
 
   final String backUpPath = 'data/backup.dat';
 
-  const TodoDataSourceImpl({required this.path});
+  const TodoDataSourceImpl({String path = 'data/todos.json'}) : _path = path;
 
   @override
   Future<List<Map<String, dynamic>>> readTodos() async {
-    File file = File(path);
+    File file = File(_path);
 
     if (!await file.exists()) {
       file = await File(
-        path,
+        _path,
       ).writeAsString(await File(backUpPath).readAsString());
     }
 
@@ -27,7 +27,7 @@ class TodoDataSourceImpl implements TodoDataSource {
 
   @override
   Future<void> writeTodos(List<Map<String, dynamic>> todos) async {
-    File file = File(path);
+    File file = File(_path);
     File backFile = File(backUpPath);
 
     List<Map<String, dynamic>> getFileReadTodo = await readTodos();
