@@ -25,8 +25,12 @@ class TodoRepositoryImpl implements TodoRepository {
       completed: false,
       createdAt: DateTime.now(),
     );
+    final List<Todo> todos = await getTodos();
 
-    await _todoDataSource.writeTodos([todo.toJson()]);
+    await _todoDataSource.writeTodos([
+      ...todos.map((e) => e.toJson()),
+      todo.toJson(),
+    ]);
   }
 
   @override
