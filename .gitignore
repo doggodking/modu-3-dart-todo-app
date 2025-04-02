@@ -3,7 +3,6 @@
 .dart_tool/
 .idea/
 todos.json
-log.txt
 
 # log.txt 파일은 제외
 !log.txt
