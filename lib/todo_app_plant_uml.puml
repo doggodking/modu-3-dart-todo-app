@@ -1,59 +1,72 @@
 @startuml
-' TodoDataSource 인터페이스
-interface TodoDataSource {
-  +readTodos(): Future<List<Map<String, dynamic>>>
-  +writeTodos(todos: List<Map<String, dynamic>>): Future<void>
+
+skinparam classAttributeIconSize 0
+
+package "Model" {
+  class Todo {
+    - int userId
+    - int id
+    - String title
+    - bool completed
+    - DateTime createdAt
+    + Todo.fromJson(Map<String, dynamic>)
+    + Map<String, dynamic> toJson()
+    + Todo copyWith(...)
+    + operator ==(...)
+    + hashCode()
+  }
 }
 
-' TodoDataSourceImpl 클래스 (TodoDataSource 구현체)
-class TodoDataSourceImpl {
-  - String _path
-  - String backUpPath
-  + readTodos(): Future<List<Map<String, dynamic>>>
-  + writeTodos(todos: List<Map<String, dynamic>>): Future<void>
+package "DataSource" {
+  interface DataSource {
+    + Future<List<Map<String, dynamic>>> readTodos()
+    + Future<void> writeTodos(List<Map<String, dynamic>> todos)
+  }
+
+  class TodoDataSourceImpl {
+    - String path
+    + readTodos()
+    + writeTodos()
+  }
+
+  DataSource <|.. TodoDataSourceImpl
 }
 
-' Todo 모델 클래스
-class Todo {
-  - int userId
-  - int id
-  - String title
-  - bool completed
-  - DateTime createdAt
-  + Todo(userId: int, id: int, title: String, completed: bool, createdAt: DateTime)
-  + fromJson(json: Map<String, dynamic>): Todo
-  + toJson(): Map<String, dynamic>
-  + copyWith(userId: int, id: int, title: String, completed: bool, createdAt: DateTime): Todo
-  + toggleCompleted(): Todo
+package "Repository" {
+  interface TodoRepository {
+    + Future<List<Todo>> getTodos()
+    + Future<void> addTodo(String title)
+    + Future<void> updateTodo(int id, String newTitle)
+    + Future<void> toggleTodo(int id)
+    + Future<void> deleteTodo(int id)
+  }
+
+  class TodoRepositoryImpl {
+    - DataSource datasource
+    + getTodos()
+    + addTodo()
+    + updateTodo()
+    + toggleTodo()
+    + deleteTodo()
+  }
+
+  TodoRepository <|.. TodoRepositoryImpl
+  TodoRepositoryImpl --> DataSource
 }
 
-' TodoRepository 인터페이스
-interface TodoRepository {
-  + getTodos(): Future<List<Todo>>
-  + addTodo(title: String): Future<void>
-  + updateTodo(id: int, newTitle: String): Future<void>
-  + toggleTodo(id: int): Future<void>
-  + deleteTodo(id: int): Future<void>
-  + getTodosByCompleted(completed: bool): Future<List<Todo>>
-  + getTodosByCreatedAt(): Future<List<Todo>>
+package "ViewModel" {
+  class CliUtils {
+    - TodoRepository repository
+    - AppLog logger
+    + processCommand()
+    + addTodo()
+    + updateTodo()
+    + toggleTodo()
+    + deleteTodo()
+    + showTodos()
+  }
+
+  CliUtils --> TodoRepository
 }
 
-' TodoRepositoryImpl 클래스 (TodoRepository 구현체)
-class TodoRepositoryImpl {
-  - TodoDataSource _todoDataSource
-  + getTodos(): Future<List<Todo>>
-  + addTodo(title: String): Future<void>
-  + updateTodo(id: int, newTitle: String): Future<void>
-  + toggleTodo(id: int): Future<void>
-  + deleteTodo(id: int): Future<void>
-  + getTodosByCompleted(completed: bool): Future<List<Todo>>
-  + getTodosByCreatedAt(): Future<List<Todo>>
-}
-
-TodoDataSourceImpl --|> TodoDataSource : implements
-TodoRepositoryImpl --|> TodoRepository : implements
-TodoRepositoryImpl --> TodoDataSourceImpl : used
-
-TodoDataSourceImpl --> Todo : used
-TodoRepositoryImpl --> Todo : used
 @enduml
