@@ -11,6 +11,13 @@ class CliTextConstants {
   static const String menuWideLine =
       '══════════════════════════════════════════════════════════════════════════════════════════════════════';
 
+  // 정렬/필터 선택 안내
+  static const String menuFilterHeader = '📂 정렬/필터를 선택하세요:';
+  static const String menuFilterDateAsc = '📅 날짜순 오름차순';
+  static const String menuFilterDateDesc = '📅 날짜순 내림차순';
+  static const String menuFilterCompleted = '✅ 완료된 할 일만 보기';
+  static const String menuFilterIncomplete = '⬜ 미완료 할 일만 보기';
+
   // 안내문
   static const String todoFormatGuide =
       '[ 번호 / [✅] 체크된 완료 상태 /  할 일 제목 / 📅 (날짜 형식)]';
@@ -27,6 +34,7 @@ class CliTextConstants {
 
   // 사용자 입력
   static const String promptChoice = '🔢 선택하세요: ';
+  static const String promptFilterChoice = '🔢 필터를 선택하세요: ';
   static const String enterTitle = '📝 할 일 제목을 입력하세요: ';
   static const String enterUserId = '👤 사용자 ID를 입력하세요: ';
   static const String enterTodoId = '🔑 수정할 할 일 ID를 입력하세요: ';

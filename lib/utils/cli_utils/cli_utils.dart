@@ -11,7 +11,7 @@ class CliUtils {
 
   final AppLog logger = AppLog();
 
-  final strMenu = '''
+  final String strMenu = '''
 ${CliTextConstants.menuHeader}
   [1]. ${CliTextConstants.menuShowTodos}
   [2]. ${CliTextConstants.menuAddTodo}
@@ -20,6 +20,14 @@ ${CliTextConstants.menuHeader}
   [5]. ${CliTextConstants.menuDeleteTodo}
   [0]. ${CliTextConstants.menuCommandExit}
 ${CliTextConstants.menuFooter}
+''';
+
+  final String strMenuFilterOptions = '''
+${CliTextConstants.menuFilterHeader}
+  [1]. ${CliTextConstants.menuFilterDateAsc}
+  [2]. ${CliTextConstants.menuFilterDateDesc}
+  [3]. ${CliTextConstants.menuFilterCompleted}
+  [4]. ${CliTextConstants.menuFilterIncomplete}
 ''';
 
   /// === 공통 유틸 함수 ===
@@ -32,7 +40,6 @@ ${CliTextConstants.menuFooter}
 
   // ID 문자열을 int로 변환하고 실제 존재하는 할 일인지 검사하여 유효한 ID 반환
   Future<int?> getValidTodoId(String? input) async {
-    // TODO: repository에 기능이 있으면 더 좋음
     if (!isNumeric(input)) return null;
 
     final int id = int.parse(input!.trim());
@@ -40,6 +47,8 @@ ${CliTextConstants.menuFooter}
     final exists = todos.any((todo) => todo.id == id);
     return exists ? id : null;
   }
+
+  /// 로그 함수
 
   Future<void> printMessageWithWriteLog({
     String? command,
@@ -87,7 +96,7 @@ ${CliTextConstants.menuFooter}
 
       switch (choice) {
         case '1':
-          await showTodos();
+          await selectAndShowTodos();
           break;
         case '2':
           await addTodo();
@@ -111,22 +120,50 @@ ${CliTextConstants.menuFooter}
     }
   }
 
-  /// === 할 일 처리 함수 ===
-  // 할 일 목록 보기
-  Future<void> showTodos() async {
+  Future<void> selectAndShowTodos() async {
     final todos = await repository.getTodos();
 
-    if (todos.isEmpty) {
+    print(strMenuFilterOptions);
+    stdout.write(CliTextConstants.promptFilterChoice);
+    final choice = stdin.readLineSync();
+
+    List<Todo> filtered = todos;
+    switch (choice) {
+      case '1':
+        filtered.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        break;
+      case '2':
+        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case '3':
+        filtered = todos.where((todo) => todo.completed).toList();
+        break;
+      case '4':
+        filtered = todos.where((todo) => !todo.completed).toList();
+        break;
+      default:
+        break;
+    }
+
+    await showTodos(todos: filtered);
+  }
+
+  /// === 할 일 처리 함수 ===
+  // 할 일 목록 보기
+  Future<void> showTodos({List<Todo>? todos}) async {
+    final data = todos ?? await repository.getTodos();
+
+    if (data.isEmpty) {
       await printMessageWithWriteLog(cliText: CliTextConstants.noTodoMessage);
       return;
     }
     print(CliTextConstants.menuWideLine);
-    for (Todo todo in todos) {
+    for (Todo todo in data) {
       final formattedDate = todo.createdAt.toString();
       final formattedId = todo.id.toString().padLeft(3, ' ');
       final formattedTitle = todo.title.toString().padRight(30, ' ');
       print(
-        '$formattedId. [${todo.completed ? '✅' : '  '}] $formattedTitle 📅($formattedDate)',
+        '$formattedId. [${todo.completed ? '✅' : '⬜'}] $formattedTitle 📅($formattedDate)',
       );
     }
     print(CliTextConstants.menuWideLine);
