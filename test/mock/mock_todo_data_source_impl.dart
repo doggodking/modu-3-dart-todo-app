@@ -6,9 +6,9 @@ import 'package:todo_app/data_source/todo_data_source.dart';
 class MockTodoDataSourceImpl implements TodoDataSource {
   final String _path;
 
-  String backUpPath = 'data/backup2.dat';
+  String backUpPath = 'data/backup.dat';
 
-  MockTodoDataSourceImpl({String path = 'data/todos.json'}) : _path = path;
+  MockTodoDataSourceImpl({String path = 'data/todos2.json'}) : _path = path;
 
   @override
   Future<List<Map<String, dynamic>>> readTodos() async {

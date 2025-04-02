@@ -3,5 +3,7 @@
 .dart_tool/
 .idea/
 todos.json
+data/backup.dat
+
 
 logs/

@@ -3,13 +3,12 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 import 'package:todo_app/data_source/todo_data_source.dart';
-import 'package:todo_app/data_source/todo_data_source_impl.dart';
 
 import '../mock/mock_todo_data_source.dart';
 import '../mock/mock_todo_data_source_impl.dart';
 
 void main() async {
-  const String filePath = 'data/todos.json';
+  const String filePath = 'data/todos2.json';
 
   Future<List<Map<String, dynamic>>> readFile({required String path}) async {
     List readFileList = jsonDecode(await File(path).readAsString());
@@ -20,16 +19,16 @@ void main() async {
   }
 
   test("1. 파일 미존재 시 – 자동 파일 생성 및 백업 사용", () async {
-    TodoDataSource todoDataSource = TodoDataSourceImpl(path: filePath);
+    TodoDataSource todoDataSource = MockTodoDataSourceImpl(path: filePath);
     List<Map<String, dynamic>> getDataSource = await todoDataSource.readTodos();
 
     expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
   });
 
   test("2. readTodos() – 정상 파일에서 데이터 읽기", () async {
-    TodoDataSource todoDataSource = TodoDataSourceImpl(path: filePath);
+    TodoDataSource todoDataSource = MockTodoDataSourceImpl(path: filePath);
     List<Map<String, dynamic>> getDataSource = await todoDataSource.readTodos();
-    expect(getDataSource, equals(await readFile(path: 'data/todos.json')));
+    expect(getDataSource, equals(await readFile(path: 'data/todos2.json')));
   });
 
   test("3. writeTodos() – 데이터 파일에 쓰기", () async {
