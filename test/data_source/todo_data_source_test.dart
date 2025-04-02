@@ -20,13 +20,7 @@ void main() async {
     TodoDataSource todoDataSource = TodoDataSourceImpl(path: filePath);
     List<Map<String, dynamic>> getDataSource = await todoDataSource.readTodos();
 
-    if (!await File(filePath).exists()) {
-      await todoDataSource.readTodos();
-      expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
-    }
-    if (await File(filePath).exists()) {
-      expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
-    }
+    expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
   });
 
   test("2. readTodos() – 정상 파일에서 데이터 읽기", () async {
@@ -36,8 +30,8 @@ void main() async {
   });
 
   test("3. writeTodos() – 데이터 파일에 쓰기", () async {
-    TodoDataSource todoDataSource = TodoDataSourceImpl(path: filePath);
-    List<Map<String, dynamic>> readData = await todoDataSource.readTodos();
+    List<Map<String, dynamic>> readData =
+        await TodoDataSourceImpl(path: filePath).readTodos();
     List<Map<String, dynamic>> mockData = [
       {
         "userId": 1,
@@ -62,6 +56,8 @@ void main() async {
       },
     ];
 
+    TodoDataSourceImpl(path: filePath).backUpPath = 'data/backup2.dat';
+
     File testFile = File('data/todos2.json');
 
     await testFile.writeAsString(jsonEncode([...readData, ...mockData]));
@@ -70,6 +66,10 @@ void main() async {
       await readFile(path: 'data/todos2.json'),
       equals([...readData, ...mockData]),
     );
+
+    if (await File('data/backup2.dat').exists()) {
+      await File('data/backup2.dat').delete();
+    }
 
     await testFile.delete();
   });
