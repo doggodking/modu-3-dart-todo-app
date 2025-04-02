@@ -49,7 +49,6 @@ class CliUtils {
   }
 
   // 전체 보기
-
   Future<void> addTodo() async {
     print(CliTextConstants.enterTitle);
     final String? strCommandTitle = stdin.readLineSync();
