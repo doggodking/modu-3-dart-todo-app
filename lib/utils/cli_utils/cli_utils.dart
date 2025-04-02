@@ -72,7 +72,7 @@ class CliUtils {
       print(CliTextConstants.enterNewTitle);
 
       final String? strCommandNewTitle = stdin.readLineSync();
-      if (isNumber(strCommandId) == false) {
+      if (isNumber(strCommandNewTitle) == false) {
         await repository.updateTodo(id, strCommandNewTitle!);
         print('[할 일 제목이 수정되었습니다]');
         await logger.log('할 일 제목 수정 - ID: $id, 새로운 제목: $strCommandNewTitle');
@@ -154,4 +154,34 @@ class CliUtils {
       }
     }
   }
+
+
+/*
+  // 디버그용, 각 메뉴를 단위별로 호출
+  Future<void> testMenuOption(String choice) async {
+    switch (choice) {
+      case '1':
+        await showTodos();  // 할 일 목록 보기
+        break;
+      case '2':
+        await addTodo();    // 할 일 추가
+        break;
+      case '3':
+        await updateTodo(); // 할 일 수정
+        break;
+      case '4':
+        await toggleTodo(); // 완료 상태 토글
+        break;
+      case '5':
+        await deleteTodo(); // 할 일 삭제
+        break;
+      case '0':
+        print(CliTextConstants.programExit); // 종료
+        return;
+      default:
+        print(CliTextConstants.invalidInput); // 잘못된 입력
+    }
+  }
+
+ */
 }
