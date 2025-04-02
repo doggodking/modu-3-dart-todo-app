@@ -24,8 +24,6 @@ void main() async {
     List<Map<String, dynamic>> getDataSource = await todoDataSource.readTodos();
 
     expect(getDataSource, equals(await readFile(path: 'data/backup.dat')));
-
-    await File(filePath).delete();
   });
 
   test("2. readTodos() – 정상 파일에서 데이터 읽기", () async {
@@ -52,7 +50,6 @@ void main() async {
       await File('data/backup2.dat').delete();
     }
 
-    await File(filePath).delete();
     await testFile.delete();
   });
 }
