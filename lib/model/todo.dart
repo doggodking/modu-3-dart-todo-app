@@ -65,6 +65,6 @@ class Todo implements Comparable<Todo> {
 
   @override
   int compareTo(Todo other) {
-    return this.createdAt.compareTo(other.createdAt);
+    return createdAt.compareTo(other.createdAt);
   }
 }
