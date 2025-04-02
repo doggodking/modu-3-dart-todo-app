@@ -36,7 +36,7 @@ class Todo implements Comparable<Todo> {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is Todo && other.hashCode == this.hashCode;
+        other is Todo && runtimeType == other.runtimeType && id == other.id;
   }
 
   @override
