@@ -11,146 +11,213 @@ class CliUtils {
 
   final AppLog logger = AppLog();
 
-  // 공통 체크 함수
-  bool? isNumber(String? str) {
-    if (!_isEmptyCommand(str)) {
-      final number = num.tryParse(str!);
-      return (number != null);
-    }
-    return null;
-  }
+  final strMenu = '''
+${CliTextConstants.menuHeader}
+  [1]. ${CliTextConstants.menuShowTodos}
+  [2]. ${CliTextConstants.menuAddTodo}
+  [3]. ${CliTextConstants.menuUpdateTodo}
+  [4]. ${CliTextConstants.menuToggleTodo}
+  [5]. ${CliTextConstants.menuDeleteTodo}
+  [0]. ${CliTextConstants.menuCommandExit}
+${CliTextConstants.menuFooter}
+''';
 
-  bool _isEmptyCommand(String? str) {
-    if (str == null && str!.isEmpty) {
-      print(CliTextConstants.invalidInput);
-      return true;
-    }
-    return false;
-  }
+  /// === 공통 유틸 함수 ===
+  // 입력이 null이거나 공백 문자열인지 검사
+  bool isNullOrBlank(String? str) => str == null || str.trim().isEmpty;
 
-  // 할 일 목록 보기
-  Future<void> showTodos() async {
+  // 숫자인 문자열인지 검사 (null 또는 공백일 경우 false)
+  bool isNumeric(String? str) =>
+      !(isNullOrBlank(str)) && num.tryParse(str!.trim()) != null;
+
+  // ID 문자열을 int로 변환하고 실제 존재하는 할 일인지 검사하여 유효한 ID 반환
+  Future<int?> getValidTodoId(String? input) async {
+    // TODO: repository에 기능이 있으면 더 좋음
+    if (!isNumeric(input)) return null;
+
+    final int id = int.parse(input!.trim());
     final todos = await repository.getTodos();
+    final exists = todos.any((todo) => todo.id == id);
+    return exists ? id : null;
+  }
 
-    // 할 일이 없으면
-    if (todos.isEmpty) {
-      print('할 일이 없습니다.');
+  Future<void> printMessageWithWriteLog({
+    String? command,
+    String cliText = CliTextConstants.invalidInput,
+  }) async {
+    print(cliText);
+    if (cliText == CliTextConstants.todoIdNotFound) {
+      await logger.log('오류 - 유효 하지 않는 Todo id 값 입력 [$command] : $cliText');
+    } else if (cliText == CliTextConstants.programStart) {
+      await logger.log('앱 시작됨.');
+    } else if (cliText == CliTextConstants.programExit) {
+      await logger.log('앱 종료됨.');
+    } else if (cliText == CliTextConstants.todoAdded) {
+      await logger.log('할 일 추가됨 - 제목 : \'$command\'');
+    } else if (cliText == CliTextConstants.todoUpdated) {
+      await logger.log('할 일 제목 수정 - \'$command\'');
+    } else if (cliText == CliTextConstants.todoToggled) {
+      await logger.log('할 일 완료 토글 - ID: $command, 상태: 완료됨');
+    } else if (cliText == CliTextConstants.todoDeleted) {
+      await logger.log('할 일 삭제됨 - ID: $command');
+    } else if (cliText == CliTextConstants.invalidInput) {
+      await logger.log('오류 - 유효 하지 않는 문자열 입력 [$command] : $cliText');
     } else {
-      // 할 일이 있으면
-      for (Todo todo in todos) {
-        final formattedDate = todo.createdAt.toString(); // 날짜 형식 조정 필요시 수정
-        print(
-          '${todo.id}. [ ${todo.completed ? '✔' : ' '}] ${todo.title} ($formattedDate)',
-        );
-      }
-      print('번호 / 체크된 완료 상태 / 할 일 제목 / (날짜 형식)');
+      final errorMsg =
+          '오류 - [CliCommandException] 정의 되지 않는 Cli 로그 메시지 (command: $command, cliText: $cliText)';
+      await logger.log(errorMsg);
+      throw Exception(errorMsg);
     }
   }
 
-  // 전체 보기
-  Future<void> addTodo() async {
-    print(CliTextConstants.enterTitle);
-    final String? strCommandTitle = stdin.readLineSync();
-
-    if (isNumber(strCommandTitle) == false) {
-      await repository.addTodo(strCommandTitle!);
-      await logger.log('할 일 추가됨 - 제목 : \'$strCommandTitle\'');
-      print('[할 일 추가됨]');
-    } else {
-      print(CliTextConstants.invalidInput);
-    }
-  }
-
-  // 업데이트
-  Future<void> updateTodo() async {
-    print(CliTextConstants.enterTodoId);
-    final String? strCommandId = stdin.readLineSync();
-
-    if (isNumber(strCommandId) ?? false) {
-      final int id = int.parse(strCommandId!);
-      print(CliTextConstants.enterNewTitle);
-
-      final String? strCommandNewTitle = stdin.readLineSync();
-      if (isNumber(strCommandNewTitle) == false) {
-        await repository.updateTodo(id, strCommandNewTitle!);
-        print('[할 일 제목이 수정되었습니다]');
-        await logger.log('할 일 제목 수정 - ID: $id, 새로운 제목: $strCommandNewTitle');
-      }
-    }
-  }
-
-  // 완료 상태 토글
-  Future<void> toggleTodo() async {
-    print('완료 상태를 토글할 할 일 ID를 입력하세요');
-    final String? strCommandId = stdin.readLineSync();
-
-    if (isNumber(strCommandId) ?? false) {
-      await repository.toggleTodo(int.parse(strCommandId!));
-      print('[할 일 완료 상태가 변경되었습니다]');
-      await logger.log('할 일 완료 토글 - ID: $strCommandId, 상태: 완료됨');
-    }
-  }
-
-  Future<void> deleteTodo() async {
-    print(CliTextConstants.enterDeleteId);
-    final String? strCommandId = stdin.readLineSync();
-    if (isNumber(strCommandId) ?? false) {
-      await repository.deleteTodo(int.parse(strCommandId!));
-      print('[할 일이 삭제되었습니다]');
-      await logger.log('할 일 삭제됨 - ID: $strCommandId');
-    }
-  }
-
+  /// === 사용자 명령 처리 루프 ===
+  // 메인 루프: 사용자 명령 처리
   Future<void> processCommand() async {
+    await printMessageWithWriteLog(cliText: CliTextConstants.programStart);
     while (true) {
-      // 메뉴 출력
-      print(CliTextConstants.menuHeader);
-      print('1. ${CliTextConstants.showTodos}');
-      print('2. ${CliTextConstants.addTodo}');
-      print('3. ${CliTextConstants.updateTodo}');
-      print('4. ${CliTextConstants.toggleTodo}');
-      print('5. ${CliTextConstants.deleteTodo}');
-      print('0. ${CliTextConstants.commandExit}');
-      print(CliTextConstants.menuFooter);
+      print(strMenu);
 
-      // 사용자 입력 받기
       stdout.write(CliTextConstants.promptChoice);
-
       final choice = stdin.readLineSync();
 
-      if (choice == null || choice.isEmpty) {
-        print(CliTextConstants.invalidInput);
+      if (isNullOrBlank(choice)) {
+        await printMessageWithWriteLog(command: choice);
         continue;
       }
 
       switch (choice) {
         case '1':
-          // 할 일 목록 보기
-          await showTodos(); // 한 번만 호출되도록 처리
+          await showTodos();
           break;
         case '2':
-          // 할 일 추가
           await addTodo();
           break;
         case '3':
-          // 할 일 수정
           await updateTodo();
           break;
         case '4':
-          // 완료 상태 토글
           await toggleTodo();
           break;
         case '5':
-          // 할 일 삭제
           await deleteTodo();
           break;
         case '0':
-          // 종료
-          print(CliTextConstants.programExit);
+          await printMessageWithWriteLog(cliText: CliTextConstants.programExit);
           return;
         default:
-          print(CliTextConstants.invalidInput);
+          await printMessageWithWriteLog(command: choice);
+          break;
       }
     }
+  }
+
+  /// === 할 일 처리 함수 ===
+  // 할 일 목록 보기
+  Future<void> showTodos() async {
+    final todos = await repository.getTodos();
+
+    if (todos.isEmpty) {
+      await printMessageWithWriteLog(cliText: CliTextConstants.noTodoMessage);
+      return;
+    }
+    print(CliTextConstants.menuWideLine);
+    for (Todo todo in todos) {
+      final formattedDate = todo.createdAt.toString();
+      final formattedId = todo.id.toString().padLeft(3, ' ');
+      final formattedTitle = todo.title.toString().padRight(30, ' ');
+      print(
+        '$formattedId. [${todo.completed ? '✅' : '  '}] $formattedTitle 📅($formattedDate)',
+      );
+    }
+    print(CliTextConstants.menuWideLine);
+    print(CliTextConstants.todoFormatGuide);
+  }
+
+  // 할 일 추가
+  Future<void> addTodo() async {
+    stdout.write(CliTextConstants.enterTitle);
+    final String? inputTitle = stdin.readLineSync();
+
+    if (!isNullOrBlank(inputTitle) && !isNumeric(inputTitle)) {
+      await repository.addTodo(inputTitle!.trim());
+      await printMessageWithWriteLog(
+        command: inputTitle,
+        cliText: CliTextConstants.todoAdded,
+      );
+    } else {
+      await printMessageWithWriteLog(command: inputTitle);
+    }
+  }
+
+  // 할 일 수정
+  Future<void> updateTodo() async {
+    stdout.write(CliTextConstants.enterTodoId);
+    final String? inputId = stdin.readLineSync();
+
+    final int? id = await getValidTodoId(inputId);
+    if (id == null) {
+      await printMessageWithWriteLog(
+        command: inputId,
+        cliText: CliTextConstants.todoIdNotFound,
+      );
+      return;
+    }
+
+    print(CliTextConstants.enterNewTitle);
+    final String? inputTitle = stdin.readLineSync();
+
+    if (!isNullOrBlank(inputTitle) && !isNumeric(inputTitle)) {
+      await repository.updateTodo(id, inputTitle!.trim());
+      print(CliTextConstants.todoUpdated);
+      await printMessageWithWriteLog(
+        command: 'ID: $inputTitle, 새로운 제목: $id',
+        cliText: CliTextConstants.todoUpdated,
+      );
+    } else {
+      await printMessageWithWriteLog(command: inputTitle);
+    }
+  }
+
+  // 완료 상태 토글
+  Future<void> toggleTodo() async {
+    stdout.write(CliTextConstants.enterToggleId);
+    final String? inputId = stdin.readLineSync();
+
+    final int? id = await getValidTodoId(inputId);
+    if (id == null) {
+      await printMessageWithWriteLog(
+        command: inputId,
+        cliText: CliTextConstants.todoIdNotFound,
+      );
+      return;
+    }
+
+    await repository.toggleTodo(id);
+
+    await printMessageWithWriteLog(
+      command: inputId,
+      cliText: CliTextConstants.todoToggled,
+    );
+  }
+
+  // 할 일 삭제
+  Future<void> deleteTodo() async {
+    stdout.write(CliTextConstants.enterDeleteId);
+    final String? inputId = stdin.readLineSync();
+
+    final int? id = await getValidTodoId(inputId);
+    if (id == null) {
+      await printMessageWithWriteLog(
+        command: inputId,
+        cliText: CliTextConstants.todoIdNotFound,
+      );
+      return;
+    }
+
+    await repository.deleteTodo(id);
+    await printMessageWithWriteLog(
+      command: inputId,
+      cliText: CliTextConstants.todoDeleted,
+    );
   }
 }

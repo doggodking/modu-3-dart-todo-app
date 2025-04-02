@@ -8,5 +8,6 @@ void main() async {
       datasource: TodoDataSourceImpl(path: 'data/todos.json'),
     ),
   );
+
   await cliUtils.processCommand();
 }
