@@ -1,3 +1,59 @@
 @startuml
+' TodoDataSource 인터페이스
+interface TodoDataSource {
+  +readTodos(): Future<List<Map<String, dynamic>>>
+  +writeTodos(todos: List<Map<String, dynamic>>): Future<void>
+}
 
+' TodoDataSourceImpl 클래스 (TodoDataSource 구현체)
+class TodoDataSourceImpl {
+  - String _path
+  - String backUpPath
+  + readTodos(): Future<List<Map<String, dynamic>>>
+  + writeTodos(todos: List<Map<String, dynamic>>): Future<void>
+}
+
+' Todo 모델 클래스
+class Todo {
+  - int userId
+  - int id
+  - String title
+  - bool completed
+  - DateTime createdAt
+  + Todo(userId: int, id: int, title: String, completed: bool, createdAt: DateTime)
+  + fromJson(json: Map<String, dynamic>): Todo
+  + toJson(): Map<String, dynamic>
+  + copyWith(userId: int, id: int, title: String, completed: bool, createdAt: DateTime): Todo
+  + toggleCompleted(): Todo
+}
+
+' TodoRepository 인터페이스
+interface TodoRepository {
+  + getTodos(): Future<List<Todo>>
+  + addTodo(title: String): Future<void>
+  + updateTodo(id: int, newTitle: String): Future<void>
+  + toggleTodo(id: int): Future<void>
+  + deleteTodo(id: int): Future<void>
+  + getTodosByCompleted(completed: bool): Future<List<Todo>>
+  + getTodosByCreatedAt(): Future<List<Todo>>
+}
+
+' TodoRepositoryImpl 클래스 (TodoRepository 구현체)
+class TodoRepositoryImpl {
+  - TodoDataSource _todoDataSource
+  + getTodos(): Future<List<Todo>>
+  + addTodo(title: String): Future<void>
+  + updateTodo(id: int, newTitle: String): Future<void>
+  + toggleTodo(id: int): Future<void>
+  + deleteTodo(id: int): Future<void>
+  + getTodosByCompleted(completed: bool): Future<List<Todo>>
+  + getTodosByCreatedAt(): Future<List<Todo>>
+}
+
+TodoDataSourceImpl --|> TodoDataSource : implements
+TodoRepositoryImpl --|> TodoRepository : implements
+TodoRepositoryImpl --> TodoDataSourceImpl : used
+
+TodoDataSourceImpl --> Todo : used
+TodoRepositoryImpl --> Todo : used
 @enduml

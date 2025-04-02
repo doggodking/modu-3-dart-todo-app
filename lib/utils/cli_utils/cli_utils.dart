@@ -37,10 +37,9 @@ class CliUtils {
     if (todos.isEmpty) {
       print('할 일이 없습니다.');
     } else {
-
       // 할 일이 있으면
       for (Todo todo in todos) {
-        final formattedDate = todo.createdAt.toString();  // 날짜 형식 조정 필요시 수정
+        final formattedDate = todo.createdAt.toString(); // 날짜 형식 조정 필요시 수정
         print(
           '${todo.id}. [ ${todo.completed ? '✔' : ' '}] ${todo.title} ($formattedDate)',
         );
@@ -105,7 +104,6 @@ class CliUtils {
   }
 
   Future<void> processCommand() async {
-
     while (true) {
       // 메뉴 출력
       print(CliTextConstants.menuHeader);
@@ -129,33 +127,32 @@ class CliUtils {
 
       switch (choice) {
         case '1':
-        // 할 일 목록 보기
-          await showTodos();  // 한 번만 호출되도록 처리
+          // 할 일 목록 보기
+          await showTodos(); // 한 번만 호출되도록 처리
           break;
         case '2':
-        // 할 일 추가
+          // 할 일 추가
           await addTodo();
           break;
         case '3':
-        // 할 일 수정
+          // 할 일 수정
           await updateTodo();
           break;
         case '4':
-        // 완료 상태 토글
+          // 완료 상태 토글
           await toggleTodo();
           break;
         case '5':
-        // 할 일 삭제
+          // 할 일 삭제
           await deleteTodo();
           break;
         case '0':
-        // 종료
+          // 종료
           print(CliTextConstants.programExit);
-          break;
+          return;
         default:
           print(CliTextConstants.invalidInput);
       }
     }
   }
-
 }

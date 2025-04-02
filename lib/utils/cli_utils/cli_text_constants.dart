@@ -48,6 +48,5 @@ CliCommand? parseCliCommand(String? input) {
       return CliCommand.appExit;
     default:
       return null;
-
   }
 }
