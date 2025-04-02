@@ -6,10 +6,9 @@ import '../../repository/todo_repository.dart';
 
 class CliUtils {
   final TodoRepository repository;
+  final AppLog logger;
 
-  CliUtils({required this.repository});
-
-  final AppLog logger = AppLog();
+  CliUtils({required this.repository, required this.logger});
 
   final String strMenu = '''
 ${CliTextConstants.menuHeader}

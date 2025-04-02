@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'package:todo_app/utils/logs/logger.dart';
 
-class AppLog {
+class AppLog implements Logger {
   final String filePath;
 
   AppLog({this.filePath = 'logs/log.txt'});
 
+  @override
   Future<void> log(String message) async {
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = '[$timestamp] $message\n';
