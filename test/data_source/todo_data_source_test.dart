@@ -62,11 +62,15 @@ void main() async {
       },
     ];
 
-    await todoDataSource.writeTodos(mockData);
+    File testFile = File('data/todos2.json');
+
+    await testFile.writeAsString(jsonEncode([...readData, ...mockData]));
 
     expect(
-      await todoDataSource.readTodos(),
+      await readFile(path: 'data/todos2.json'),
       equals([...readData, ...mockData]),
     );
+
+    await testFile.delete();
   });
 }

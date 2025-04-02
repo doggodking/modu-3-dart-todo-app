@@ -28,7 +28,7 @@ class TodoDataSourceImpl implements TodoDataSource {
   @override
   Future<void> writeTodos(List<Map<String, dynamic>> todos) async {
     File file = File(_path);
-    File backFile = File(backUpPath);
+    File backFile = await File(backUpPath).copy('backup2.dat');
 
     List<Map<String, dynamic>> getFileReadTodo = await readTodos();
 
