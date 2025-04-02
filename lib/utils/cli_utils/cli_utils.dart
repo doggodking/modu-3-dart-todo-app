@@ -12,10 +12,9 @@ class CliUtils {
   );
   final AppLog logger = AppLog();
 
-
   // 공통 체크 함수
   bool? isNumber(String? str) {
-    if (_isEmptyCommand(str)) {
+    if (!_isEmptyCommand(str)) {
       final number = num.tryParse(str!);
       return (number != null);
     }
@@ -23,10 +22,10 @@ class CliUtils {
   }
 
   bool _isEmptyCommand(String? str) {
-    if (str != null && str.isEmpty) {
+    if (str == null && str!.isEmpty) {
+      print(CliTextConstants.invalidInput);
       return true;
     }
-    print(CliTextConstants.invalidInput);
     return false;
   }
 
@@ -34,12 +33,20 @@ class CliUtils {
   Future<void> showTodos() async {
     final todos = await repository.getTodos();
 
-    for (Todo todo in todos) {
-      print(
-        '${todo.id}. [ ${todo.completed ? '✔' : ' '}] ${todo.title} (${todo.createdAt.toString()})',
-      );
+    // 할 일이 없으면
+    if (todos.isEmpty) {
+      print('할 일이 없습니다.');
+    } else {
+
+      // 할 일이 있으면
+      for (Todo todo in todos) {
+        final formattedDate = todo.createdAt.toString();  // 날짜 형식 조정 필요시 수정
+        print(
+          '${todo.id}. [ ${todo.completed ? '✔' : ' '}] ${todo.title} ($formattedDate)',
+        );
+      }
+      print('번호 / 체크된 완료 상태 / 할 일 제목 / (날짜 형식)');
     }
-    print('번호 / 체크 completed / 할일 / (날짜 형식)');
   }
 
   // 전체 보기
@@ -50,10 +57,11 @@ class CliUtils {
 
     if (isNumber(strCommandTitle) == false) {
       await repository.addTodo(strCommandTitle!);
+      await logger.log('할 일 추가됨 - 제목 : \'$strCommandTitle\'');
+      print('[할 일 추가됨]');
     } else {
       print(CliTextConstants.invalidInput);
     }
-    await logger.log('할 일 추가됨 - 제목 : \'$strCommandTitle\'');
   }
 
   // 업데이트
@@ -96,9 +104,10 @@ class CliUtils {
     }
   }
 
-
   Future<void> processCommand() async {
+
     while (true) {
+      // 메뉴 출력
       print(CliTextConstants.menuHeader);
       print('1. ${CliTextConstants.showTodos}');
       print('2. ${CliTextConstants.addTodo}');
@@ -107,29 +116,44 @@ class CliUtils {
       print('5. ${CliTextConstants.deleteTodo}');
       print('0. ${CliTextConstants.commandExit}');
       print(CliTextConstants.menuFooter);
+
+      // 사용자 입력 받기
       stdout.write(CliTextConstants.promptChoice);
 
-      final String? strChoice = stdin.readLineSync();
-      final command = parseCliCommand(strChoice);
-      if (command == null) {
+      final choice = stdin.readLineSync();
+
+      if (choice == null || choice.isEmpty) {
         print(CliTextConstants.invalidInput);
         continue;
       }
 
-      switch  (command) {
-        case CliCommand.showTodos:
-          await showTodos();
+      switch (choice) {
+        case '1':
+        // 할 일 목록 보기
+          await showTodos();  // 한 번만 호출되도록 처리
           break;
-        case CliCommand.addTodo:
+        case '2':
+        // 할 일 추가
+          await addTodo();
           break;
-        case CliCommand.updateTodo:
+        case '3':
+        // 할 일 수정
+          await updateTodo();
           break;
-        case CliCommand.toggleTodo:
+        case '4':
+        // 완료 상태 토글
+          await toggleTodo();
           break;
-        case CliCommand.deleteTodo:
+        case '5':
+        // 할 일 삭제
+          await deleteTodo();
           break;
-        case CliCommand.appExit:
-          return;
+        case '0':
+        // 종료
+          print(CliTextConstants.programExit);
+          break;
+        default:
+          print(CliTextConstants.invalidInput);
       }
     }
   }
